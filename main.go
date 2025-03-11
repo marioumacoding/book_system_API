@@ -1,24 +1,24 @@
 package main
 
 import (
-	// "errors"
 	"net/http"
-	// "book_system/databases"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
 type book struct {
-	ID       string `json:"id"`
+	ID       int    `json:"id"`
 	Title    string `json:"title"`
 	Author   string `json:"author"`
 	Quantity int    `json:"quantity"`
 }
 
 var books = []book{
-	{ID: "1", Title: "Book1", Author: "Mariam", Quantity: 1},
-	{ID: "2", Title: "Book2", Author: "Marina", Quantity: 3},
-	{ID: "3", Title: "Book3", Author: "Micho", Quantity: 4},
-	{ID: "4", Title: "Book4", Author: "Ayman", Quantity: 6},
+	{ID: 1, Title: "Book1", Author: "Mariam", Quantity: 1},
+	{ID: 2, Title: "Book2", Author: "Marina", Quantity: 3},
+	{ID: 3, Title: "Book3", Author: "Micho", Quantity: 4},
+	{ID: 4, Title: "Book4", Author: "Ayman", Quantity: 6},
 }
 
 func getBooks(c *gin.Context) {
@@ -34,16 +34,15 @@ func createBook(c *gin.Context) {
 	}
 
 	if _, isFound := searchBookByID(newBook.ID); isFound {
-		books = append(books, newBook)
-		c.IndentedJSON(http.StatusCreated, newBook)
+		c.IndentedJSON(http.StatusConflict, gin.H{"message": "Book with given ID already exists"})
 		return
 	}
 
-	c.IndentedJSON(http.StatusConflict, gin.H{"message": "Book with given ID already exists"})
-
+	books = append(books, newBook)
+	c.IndentedJSON(http.StatusCreated, newBook)
 }
 
-func searchBookByID(id string) (int, bool) {
+func searchBookByID(id int) (int, bool) {
 	for index, b := range books {
 		if b.ID == id {
 			return index, true
@@ -53,7 +52,11 @@ func searchBookByID(id string) (int, bool) {
 }
 
 func getBookByID(c *gin.Context) {
-	id := c.Param("id")
+	id, err := strconv.Atoi(c.Param("id")) // Convert string to int
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid book ID"})
+		return
+	}
 
 	if index, isFound := searchBookByID(id); isFound {
 		c.IndentedJSON(http.StatusOK, books[index])
@@ -63,10 +66,13 @@ func getBookByID(c *gin.Context) {
 }
 
 func updateBookByID(c *gin.Context) {
-	id := c.Param("id")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid book ID"})
+		return
+	}
 
 	var updatedBook book
-
 	if err := c.BindJSON(&updatedBook); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid JSON format"})
 		return
@@ -80,14 +86,16 @@ func updateBookByID(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Book with given ID not found"})
-
 }
 
 func patchBookByID(c *gin.Context) {
-	id := c.Param("id")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid book ID"})
+		return
+	}
 
 	var updatedBook map[string]interface{}
-
 	if err := c.BindJSON(&updatedBook); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid JSON format"})
 		return
@@ -110,7 +118,11 @@ func patchBookByID(c *gin.Context) {
 }
 
 func deleteByID(c *gin.Context) {
-	id := c.Param("id")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid book ID"})
+		return
+	}
 
 	if index, isFound := searchBookByID(id); isFound {
 		books = append(books[:index], books[index+1:]...)
@@ -118,11 +130,9 @@ func deleteByID(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Book with given ID not found"})
-
 }
+
 func main() {
-		// Connect to the database
-	// database.ConnectDatabase()
 	router := gin.Default()
 	router.GET("/books", getBooks)
 	router.GET("/books/:id", getBookByID)
