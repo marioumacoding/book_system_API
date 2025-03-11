@@ -61,8 +61,5 @@ The API will run on `http://localhost:8080`
 
 ---
 
-## 📝 License
-This project is open-source and available under the **MIT License**.
-
 💡 **Feel free to contribute or give feedback!** 🚀
 
