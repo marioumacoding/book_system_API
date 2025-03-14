@@ -17,7 +17,7 @@ This is a simple **Book Management API** built using **Go** and the **Gin** fram
 ## 🛠️ Tech Stack
 - **Go** (Golang)
 - **Gin** (Web Framework)
-- **MySQL** (Database - Future Implementation)
+- **MySQL** (Database)
 - **Redis** (Caching - Future Implementation)
 
 ---
@@ -48,14 +48,13 @@ The API will run on `http://localhost:8080`
 | GET     | `/books`        | Get all books         |
 | GET     | `/books/:id`    | Get book by ID        |
 | POST    | `/books`        | Add a new book        |
-| PUT     | `/books/:id`    | Update a book         |
-| PATCH   | `/books/:id`    | Partially update book |
+| PATCH   | `/books/:id`    | Update a book         |
 | DELETE  | `/books/:id`    | Delete a book         |
 
 ---
 
 ## 🔥 Future Enhancements
-- Connect to a **MySQL database** for persistent storage
+- Connect to a **MySQL database** for persistent storage (Done)
 - Implement **Redis caching**
 - Add **user authentication** (JWT)
 
